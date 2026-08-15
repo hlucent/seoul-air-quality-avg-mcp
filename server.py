@@ -71,4 +71,4 @@ def get_air_quality_range(start_index: int = 1, end_index: int = 24, grade: str 
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
-    mcp.run(transport="streamable-http", host="0.0.0.0", port=port)
+    mcp.run(transport="streamable-http", host="0.0.0.0", port=port, stateless_http=True)

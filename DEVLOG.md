@@ -20,3 +20,9 @@ Claude Code는 작업 단계마다 아래 형식으로 짧게 기록합니다.
 - 이슈: .env 파일에 BOM이 있어 python-dotenv가 SEOUL_API_KEY를 못 읽음 → BOM 제거로 해결
 - 확인 필요: 이 API는 START_INDEX/END_INDEX를 넓게 잡아도 list_total_count가 항상 1로, 최신 1건만 반환됨(과거 시계열 미제공으로 추정). README에 참고 문구 추가함. 서울 열린데이터광장 측 스펙 재확인 필요할 수 있음
 - 다음: 배포 준비 완료, flyctl deploy는 사용자 직접 실행
+
+### [운영 이슈 진단: 200/404 반복] 2026-08-16
+- 한 일: fly logs 분석 결과, 머신 2대(auto_stop/start) 환경에서 POST /mcp가 200과 404를 번갈아 반환하는 원인 확인
+- 이슈: streamable-http 세션(Mcp-Session-Id)이 프로세스 인메모리에만 저장되는데, fly proxy가 같은 세션의 후속 요청을 다른 머신으로 라우팅함 → 세션을 모르는 머신은 404 반환. 머신이 auto_stop으로 재시작되면 해당 세션도 전부 소실
+- 해결: server.py의 mcp.run()에 stateless_http=True 추가. 세션을 서버 메모리에 유지하지 않는 방식으로 전환, 머신 대수/설정은 변경하지 않음
+- 다음: 재배포 후 fly logs로 200/404 반복 재현 여부 확인
